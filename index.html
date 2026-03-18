@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IIS Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07111f;
+  --bg-2:#0b172a;
+  --panel:rgba(12,22,40,0.82);
+  --panel-2:rgba(16,28,49,0.9);
+  --panel-3:#101c31;
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --text:#e8f0ff;
+  --muted:#8fa3c7;
+  --accent:#69a5ff;
+  --accent-2:#67f0c4;
+  --accent-3:#8f74ff;
+  --warn:#ff9666;
+  --danger:#ff6f91;
+  --shadow:0 24px 80px rgba(0,0,0,0.28);
+  --radius:22px;
+  --radius-sm:14px;
+  --radius-xs:10px;
+  --code-bg:#09111e;
+  --sidebar-w:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(105,165,255,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(103,240,196,.11), transparent 22%),
+    linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+  min-height:100vh;
+  overflow:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(180deg, rgba(0,0,0,.5), transparent 92%);
+  pointer-events:none;
+}
+button,input,textarea{font:inherit}
+button{border:none}
+a{color:inherit}
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+.nav-item:focus-visible,
+.module-card:focus-visible,
+.quiz-opt:focus-visible,
+.quick-q:focus-visible,
+.send-btn:focus-visible,
+.menu-btn:focus-visible{
+  outline:3px solid rgba(103,240,196,.9);
+  outline-offset:3px;
+}
+#appShell{
+  height:100vh;
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+}
+.sidebar{
+  position:relative;
+  background:linear-gradient(180deg, rgba(9,18,33,.96) 0%, rgba(10,19,35,.88) 100%);
+  border-right:1px solid var(--border);
+  padding:18px 16px 18px;
+  overflow:auto;
+  backdrop-filter:blur(18px);
+}
+.sidebar-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+}
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.brand-mark{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;
+  place-items:center;
+  box-shadow:0 10px 30px rgba(105,165,255,.35);
+  color:#04111f;
+  font-size:.8rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  font-family:'JetBrains Mono',monospace;
+}
+.brand-photo{
+  width:48px;
+  height:48px;
+  object-fit:cover;
+  border-radius:12px; /* use 999px for a circle */
+  flex-shrink:0;
+}
+.brand-copy h1{font-size:1rem;font-weight:800;letter-spacing:-.03em}
+.brand-copy p{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.45}
+.sidebar-stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.mini-stat{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:12px;
+}
+.mini-stat b{display:block;font-size:1rem;margin-bottom:2px}
+.mini-stat span{font-size:.72rem;color:var(--muted)}
+.sidebar-progress{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.025));
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:16px;
+}
+.progress-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.progress-head .title{font-size:.78rem;color:var(--muted);font-weight:600}
+.progress-head .value{font-size:.76rem;font-family:'JetBrains Mono',monospace;color:var(--text)}
+.progress-track{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;box-shadow:0 0 24px rgba(103,240,196,.26)}
+.section-label{
+  padding:8px 10px 6px;
+  font-size:.68rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#7d90b4;
+  font-family:'JetBrains Mono',monospace;
+}
+.nav-list{display:flex;flex-direction:column;gap:6px}
+.nav-item{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  color:#c3d1ea;
+  cursor:pointer;
+  transition:.18s ease;
+  border:1px solid transparent;
+  background:transparent;
+  text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.06);transform:translateX(2px)}
+.nav-item.active{
+  background:linear-gradient(135deg, rgba(105,165,255,.16), rgba(143,116,255,.09));
+  border-color:rgba(105,165,255,.24);
+  color:#fff;
+}
+.nav-item.done{color:#d7fff4}
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  flex-shrink:0;
+  box-shadow:0 0 0 4px rgba(255,255,255,.03);
+}
+.nav-item.active .dot{background:var(--accent);box-shadow:0 0 0 4px rgba(105,165,255,.14), 0 0 18px rgba(105,165,255,.5)}
+.nav-item.done .dot{background:var(--accent-2)}
+.nav-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.nav-copy strong{font-size:.86rem;font-weight:650;line-height:1.3}
+.nav-copy span{font-size:.73rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.content{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 24px;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,16,29,.62);
+  backdrop-filter:blur(18px);
+}
+.topbar-left{display:flex;align-items:center;gap:14px;min-width:0}
+.menu-btn{
+  width:42px;height:42px;border-radius:12px;display:none;place-items:center;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);cursor:pointer
+}
+.menu-btn svg{width:18px;height:18px;fill:currentColor}
+.page-kicker{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--accent-2);letter-spacing:.14em;text-transform:uppercase}
+.page-title{font-size:1.2rem;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-subtitle{color:var(--muted);font-size:.84rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:.78rem;color:#d3e1fb
+}
+.pill b{color:#fff}
+.workspace{
+  flex:1;
+  overflow:auto;
+  padding:24px;
+}
+.view{display:none}
+.view.active{display:block}
+.hero{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.hero-card{
+  padding:28px;
+  position:relative;
+  overflow:hidden;
+}
+.hero-card::after{
+  content:'';
+  position:absolute;
+  right:-30px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle, rgba(105,165,255,.18), transparent 70%);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 11px;border-radius:999px;
+  background:rgba(103,240,196,.1);color:var(--accent-2);
+  border:1px solid rgba(103,240,196,.2);
+  font-size:.74rem;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase
+}
+.hero-card h2{font-size:2.2rem;line-height:1.05;letter-spacing:-.05em;margin:18px 0 12px;max-width:10ch}
+.hero-card p{color:#c2d0ea;line-height:1.7;max-width:62ch}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:12px 16px;border-radius:14px;cursor:pointer;font-weight:700;transition:.18s ease;
+  border:1px solid transparent;text-decoration:none
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#5a7cff);color:#fff;box-shadow:0 12px 28px rgba(105,165,255,.28)}
+.btn-secondary{background:rgba(255,255,255,.04);border-color:var(--border);color:var(--text)}
+.btn-success{background:linear-gradient(135deg,var(--accent-2),#7dffd8);color:#07221b}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.summary-card{padding:24px}
+.summary-card h3{font-size:1rem;margin-bottom:16px}
+.summary-stack{display:grid;gap:12px}
+.summary-item{padding:14px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055)}
+.summary-item strong{display:block;font-size:.84rem;margin-bottom:6px}
+.summary-item p{font-size:.8rem;color:var(--muted);line-height:1.55}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.stat-card{padding:22px}
+.stat-label{font-size:.75rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.stat-value{font-size:2rem;font-weight:800;letter-spacing:-.05em;margin-top:10px}
+.stat-foot{font-size:.8rem;color:#bfd4ff;margin-top:8px}
+.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.module-card{padding:20px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:.2s ease}
+.module-card:hover{transform:translateY(-3px);border-color:rgba(105,165,255,.24)}
+.module-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.module-icon{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg, rgba(105,165,255,.18), rgba(143,116,255,.1));font-size:1.2rem
+}
+.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.badge.beginner{background:rgba(103,240,196,.12);color:var(--accent-2)}
+.badge.intermediate{background:rgba(105,165,255,.12);color:var(--accent)}
+.badge.advanced{background:rgba(255,150,102,.12);color:var(--warn)}
+.module-card h3{font-size:1rem}
+.module-card p{color:var(--muted);font-size:.86rem;line-height:1.6}
+.module-progress{height:9px;background:rgba(255,255,255,.055);border-radius:999px;overflow:hidden}
+.module-progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px}
+.lesson-shell,.quiz-shell,.tutor-shell{display:flex;flex-direction:column;gap:18px}
+.lesson-hero,.quiz-hero,.tutor-hero{padding:26px 28px}
+.lesson-tag,.quiz-tag{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+  background:rgba(105,165,255,.12);border:1px solid rgba(105,165,255,.2);color:var(--accent);
+  font-size:.73rem;font-family:'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase
+}
+.lesson-hero h2,.quiz-hero h2,.tutor-hero h2{font-size:2rem;letter-spacing:-.05em;margin-top:16px;line-height:1.1}
+.lesson-hero p,.quiz-hero p,.tutor-hero p{color:var(--muted);margin-top:8px;font-size:.94rem;line-height:1.65;max-width:70ch}
+.lesson-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.lesson-content-card{padding:28px}
+.lesson-content h2{font-size:1.28rem;font-weight:800;margin:28px 0 10px}
+.lesson-content h3{font-size:1rem;color:var(--accent-2);margin:20px 0 8px}
+.lesson-content p{line-height:1.82;color:#c6d5ee;margin-bottom:14px;font-size:.96rem}
+.lesson-content ul,.lesson-content ol{margin:8px 0 18px 22px;color:#c6d5ee}
+.lesson-content li{line-height:1.75;margin-bottom:8px}
+.code-block, .lesson-content pre{
+  background:linear-gradient(180deg, rgba(5,10,18,.95), rgba(10,16,27,.95));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:18px 20px;
+  font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;color:#b8ffda;
+  overflow:auto;white-space:pre-wrap;margin:14px 0 22px
+}
+.cm{color:#7c8baa}.kw{color:#88b3ff}.vl{color:#ffb68a}
+.info-box{
+  background:rgba(105,165,255,.08);
+  border:1px solid rgba(105,165,255,.18);
+  border-radius:18px;padding:16px 18px;margin:16px 0;color:#cfe0ff;line-height:1.7
+}
+.info-box.warn{background:rgba(255,150,102,.08);border-color:rgba(255,150,102,.18);color:#ffd9c7}
+.info-box.ok{background:rgba(103,240,196,.08);border-color:rgba(103,240,196,.18);color:#caffef}
+.lesson-side{display:grid;gap:16px;position:sticky;top:0}
+.side-card{padding:18px}
+.side-card h3{font-size:.92rem;margin-bottom:12px}
+.side-card p{font-size:.84rem;color:var(--muted);line-height:1.65}
+.side-list{display:grid;gap:10px;margin-top:8px}
+.side-list .row{display:flex;justify-content:space-between;gap:12px;font-size:.83rem;color:#d4e2fb}
+.side-list .row span:last-child{color:var(--muted);text-align:right}
+.lesson-actions{display:flex;flex-wrap:wrap;gap:12px}
+.lesson-nav{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:20px 22px}
+.quiz-card{padding:28px;max-width:840px}
+.quiz-q{font-size:1.16rem;font-weight:750;line-height:1.55;margin-bottom:22px}
+.quiz-options{display:grid;gap:12px}
+.quiz-opt{
+  display:flex;align-items:flex-start;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--border);
+  background:rgba(255,255,255,.03);cursor:pointer;transition:.16s ease;font-size:.92rem;line-height:1.6
+}
+.quiz-opt:hover{border-color:rgba(105,165,255,.25);background:rgba(105,165,255,.06)}
+.quiz-opt.selected{border-color:rgba(105,165,255,.38);background:rgba(105,165,255,.09)}
+.quiz-opt.correct{border-color:rgba(103,240,196,.34);background:rgba(103,240,196,.08)}
+.quiz-opt.wrong{border-color:rgba(255,111,145,.3);background:rgba(255,111,145,.09)}
+.quiz-letter{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.07);font-weight:800;font-size:.76rem;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.quiz-feedback{display:none;margin-top:16px}
+.quiz-feedback.show{display:block}
+.tutor-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px;align-items:start}
+.chat-card{display:flex;flex-direction:column;min-height:70vh}
+.tutor-messages{padding:22px;display:flex;flex-direction:column;gap:16px;overflow:auto;max-height:70vh}
+.msg{display:flex;gap:12px;max-width:780px}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg-avatar{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:.74rem;font-weight:800;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.msg-avatar.ai{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#062132}
+.msg-avatar.user{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#dbe8ff}
+.msg-bubble{padding:14px 16px;border-radius:18px;font-size:.9rem;line-height:1.75}
+.msg.ai .msg-bubble{background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.msg.user .msg-bubble{background:rgba(105,165,255,.12);border:1px solid rgba(105,165,255,.22)}
+.msg-bubble code{background:rgba(0,0,0,.25);padding:2px 6px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.84em;color:var(--accent-2)}
+.msg-bubble pre{background:var(--code-bg);border:1px solid var(--border);border-radius:14px;padding:12px;margin:10px 0;overflow:auto;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#b8ffda}
+.typing-indicator{display:flex;gap:6px;align-items:center;padding:4px 0}
+.typing-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-input-wrap{padding:18px 22px;border-top:1px solid var(--border);display:grid;gap:12px}
+.quick-questions{display:flex;flex-wrap:wrap;gap:8px}
+.quick-q{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:#cfdcf5;font-size:.76rem;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:.16s}
+.quick-q:hover{border-color:rgba(105,165,255,.24);color:#fff}
+.chat-input-row{display:flex;gap:12px}
+.tutor-input{
+  flex:1;min-height:54px;max-height:140px;resize:vertical;border-radius:18px;padding:14px 16px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);outline:none
+}
+.tutor-input:focus{border-color:rgba(105,165,255,.4);box-shadow:0 0 0 4px rgba(105,165,255,.09)}
+.send-btn{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#5a7cff);display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 24px rgba(105,165,255,.24)}
+.send-btn svg{width:20px;height:20px;fill:#fff}
+.helper-card{padding:20px}
+.helper-card h3{font-size:.95rem;margin-bottom:12px}
+.helper-card p,.helper-card li{font-size:.84rem;color:var(--muted);line-height:1.7}
+.helper-card ul{margin-left:18px;display:grid;gap:6px}
+.sidebar-overlay{display:none}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:999px}
+::-webkit-scrollbar-track{background:transparent}
+@media (max-width: 1180px){
+  .hero,.lesson-layout,.tutor-layout{grid-template-columns:1fr}
+  .lesson-side{position:static}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width: 920px){
+  #appShell{grid-template-columns:1fr}
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;z-index:40;width:min(88vw,340px);
+    transform:translateX(-100%);transition:.22s ease
+  }
+  body.sidebar-open .sidebar{transform:translateX(0)}
+  .sidebar-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.2s;z-index:30}
+  body.sidebar-open .sidebar-overlay{opacity:1;pointer-events:auto}
+  .menu-btn{display:grid}
+  .topbar{padding:16px 18px}
+  .workspace{padding:18px}
+}
+@media (max-width: 720px){
+  .hero-card h2,.lesson-hero h2,.quiz-hero h2,.tutor-hero h2{font-size:1.6rem}
+  .stats-grid,.module-grid{grid-template-columns:1fr}
+  .lesson-content-card,.hero-card,.summary-card,.quiz-card,.lesson-hero,.quiz-hero,.tutor-hero,.stat-card,.module-card{padding:20px}
+  .lesson-nav,.chat-input-row{flex-direction:column}
+  .btn,.send-btn,.tutor-input{width:100%}
+  .topbar-right{display:none}
+}
+</style>
+</head>
+<body>
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- LESSON HTML CONTENT (hidden, read by JS) -->
+<div style="display:none">
+
+<div id="lc0">
+<h2>Introduction to IIS</h2>
+<p><strong>Internet Information Services (IIS)</strong> is Microsoft's powerful, flexible web server built into Windows. It hosts websites, web applications, REST APIs, and services on the Windows platform.</p>
+<div class="info-box ok"><strong>If IIS is installed on your machine, you are close to ready.</strong> Verify that the needed features are enabled before you start hosting sites or apps.</div>
+<h2>What Can IIS Do?</h2>
+<ul>
+<li>Host <strong>static websites</strong> (HTML, CSS, JavaScript, images)</li>
+<li>Run <strong>ASP.NET and ASP.NET Core</strong> web applications</li>
+<li>Serve <strong>PHP</strong>, CGI, and other server-side technologies</li>
+<li>Handle <strong>FTP and SMTP</strong> services</li>
+<li>Act as a <strong>reverse proxy</strong> for other services</li>
+<li>Enforce <strong>SSL/TLS</strong> encryption (HTTPS)</li>
+</ul>
+<h2>IIS vs Other Web Servers</h2>
+<p>IIS is Windows-native and integrates deeply with Active Directory, .NET, and Windows authentication. While Apache and Nginx dominate Linux, IIS is the go-to for Windows enterprise environments.</p>
+<div class="code-block"><span class="cm"># Check if IIS is running via PowerShell</span>
+Get-Service -Name W3SVC
+<span class="cm"># W3SVC = World Wide Web Publishing Service (the IIS engine)</span></div>
+<h2>Current IIS Version</h2>
+<p>Modern Windows client and server environments commonly use <strong>IIS 10.x</strong>. Exact capabilities depend on your Windows version and patch level, so treat the OS build as the source of truth when checking feature availability.</p>
+<div class="info-box"><strong>Where is it?</strong> Press <strong>Win+R</strong>, type <code>inetmgr</code>, press Enter to open IIS Manager.</div>
+</div>
+
+<div id="lc1">
+<h2>The Request Processing Pipeline</h2>
+<p>When a browser makes a request, it passes through several layers before a response is sent. Understanding this pipeline helps you configure, debug, and optimize IIS effectively.</p>
+<h3>HTTP.sys - The Kernel-Mode Driver</h3>
+<p><strong>HTTP.sys</strong> is a Windows kernel-mode driver that listens for HTTP/HTTPS requests. It handles listening on ports, SSL termination, response caching, and request queuing for application pools.</p>
+<div class="code-block"><span class="cm"># IIS Request Flow</span>
+Browser Request
+    |
+HTTP.sys (Kernel Mode)   &lt;-- Handles TCP/IP, SSL, caching
+    |
+W3SVC Service            &lt;-- Manages app pools, config
+    |
+w3wp.exe Worker Process  &lt;-- One per Application Pool
+    |
+IIS Modules + Handlers   &lt;-- Auth, compression, rewrite...
+    |
+Your App Code            &lt;-- ASP.NET, PHP, static files
+    |
+HTTP Response --&gt; Browser</div>
+<h3>Worker Processes (w3wp.exe)</h3>
+<p>Each <strong>Application Pool</strong> runs in its own <code>w3wp.exe</code> worker process. This isolation means one crashing app does not take down others. You can see them in Task Manager.</p>
+<h3>Pipeline Modes</h3>
+<div class="info-box warn"><strong>Integrated vs Classic:</strong> Always use <strong>Integrated</strong> mode for new apps. Classic is only for legacy apps that require it.</div>
+</div>
+
+<div id="lc2">
+<h2>You Already Have IIS!</h2>
+<p>Since you have IIS installed, verify the right features are enabled. IIS is modular - you only install what you need.</p>
+<h3>Method 1: Windows Features (GUI)</h3>
+<p>Go to <strong>Control Panel &rarr; Programs &rarr; Turn Windows features on or off</strong>. Expand <em>Internet Information Services</em> and check the features you need.</p>
+<div class="info-box"><strong>Key features to enable:</strong><ul style="margin:8px 0 0 16px">
+<li>Web Management Tools &rarr; IIS Management Console</li>
+<li>WWW Services &rarr; Application Development (ASP.NET)</li>
+<li>WWW Services &rarr; Common HTTP Features</li>
+<li>WWW Services &rarr; Security</li>
+</ul></div>
+<h3>Method 2: PowerShell (Run as Admin)</h3>
+<div class="code-block"><span class="cm"># Windows Server</span>
+<span class="kw">Install-WindowsFeature</span> -Name Web-Server -IncludeManagementTools
+
+<span class="cm"># Windows 10/11 Desktop</span>
+<span class="kw">Enable-WindowsOptionalFeature</span> -Online -FeatureName IIS-WebServer -All
+
+<span class="cm"># Check what IIS features are installed</span>
+<span class="kw">Get-WindowsFeature</span> | Where-Object {$_.Name -like "Web-*" -and $_.Installed}</div>
+<h3>Verify IIS is Working</h3>
+<div class="code-block"><span class="cm"># Check service status</span>
+<span class="kw">Get-Service</span> W3SVC
+
+<span class="cm"># Start IIS if stopped</span>
+<span class="kw">Start-Service</span> W3SVC</div>
+<div class="info-box ok"><strong>Quick Test:</strong> Open your browser and go to <code>http://localhost</code>. If you see the IIS welcome page - it is working!</div>
+<h3>Default Paths</h3>
+<ul>
+<li><strong>Web root:</strong> C:\inetpub\wwwroot\</li>
+<li><strong>Config:</strong> C:\Windows\System32\inetsrv\config\</li>
+<li><strong>Logs:</strong> C:\inetpub\logs\LogFiles\</li>
+</ul>
+</div>
+
+<div id="lc3">
+<h2>Opening IIS Manager</h2>
+<p>IIS Manager is your control center. Press <strong>Win+R</strong>, type <code>inetmgr</code>, press Enter. Or search "IIS Manager" in Start.</p>
+<h2>The Three-Panel Layout</h2>
+<ul>
+<li><strong>Left (Connections)</strong> - Tree: Server &rarr; Sites &rarr; Applications &rarr; Virtual Directories</li>
+<li><strong>Center (Features)</strong> - Icons for configuring the selected node</li>
+<li><strong>Right (Actions)</strong> - Context-sensitive actions</li>
+</ul>
+<h3>The Connections Tree</h3>
+<div class="code-block">SERVER-NAME
++-- Application Pools
+|   +-- DefaultAppPool
+|   +-- .NET v4.5 Classic
++-- Sites
+    +-- Default Web Site   (port 80)
+        +-- aspnet_client
+        +-- (your apps)</div>
+<h3>Key Feature Icons</h3>
+<ul>
+<li><strong>SSL Settings</strong> - Configure HTTPS requirements</li>
+<li><strong>Authentication</strong> - Enable/disable auth methods</li>
+<li><strong>Default Document</strong> - Set index.html, default.aspx etc.</li>
+<li><strong>Directory Browsing</strong> - Show file listings (off by default)</li>
+<li><strong>Compression</strong> - GZip static/dynamic content</li>
+<li><strong>URL Rewrite</strong> - Redirect and rewrite URLs</li>
+</ul>
+<div class="info-box warn"><strong>Be careful:</strong> Changes save to <code>C:\Windows\System32\inetsrv\config\applicationHost.config</code>. Back this up before major changes.</div>
+</div>
+
+<div id="lc4">
+<h2>What is a Binding?</h2>
+<p>A <strong>binding</strong> tells IIS how to listen for incoming requests. Each binding is: <strong>Protocol + IP Address + Port + Host Name</strong>.</p>
+<div class="code-block"><span class="cm"># Example bindings:</span>
+http   *:80:              &lt;-- All IPs, port 80, any hostname
+http   *:80:mysite.local  &lt;-- Port 80, only hostname "mysite.local"
+https  *:443:             &lt;-- HTTPS on all IPs
+http   192.168.1.10:8080: &lt;-- Specific IP, port 8080</div>
+<h2>Creating a New Website</h2>
+<p>In IIS Manager: <strong>Right-click Sites &rarr; Add Website</strong>. Fill in: site name, application pool, physical path, and binding.</p>
+<h3>Multiple Sites on Port 80</h3>
+<p>Edit the hosts file at <code>C:\Windows\System32\drivers\etc\hosts</code> (open Notepad as Admin):</p>
+<div class="code-block">127.0.0.1    site1.local
+127.0.0.1    site2.local
+127.0.0.1    myapp.local</div>
+<p>Then in IIS, set each site's binding host name accordingly. IIS routes by the HTTP Host header.</p>
+<h3>PowerShell: Create a Site</h3>
+<div class="code-block"><span class="kw">Import-Module</span> WebAdministration
+
+<span class="kw">New-WebSite</span> -Name <span class="vl">"MyApp"</span> -Port <span class="vl">8080</span> -PhysicalPath <span class="vl">"C:\inetpub\myapp"</span>
+
+<span class="cm"># List all sites</span>
+<span class="kw">Get-WebSite</span></div>
+<div class="info-box"><strong>Port conflict?</strong> Run <code>netstat -ano | findstr :80</code> in cmd to find what is using port 80.</div>
+</div>
+
+<div id="lc5">
+<h2>What is an Application Pool?</h2>
+<p>An <strong>Application Pool</strong> isolates web apps in their own worker process (<code>w3wp.exe</code>). If one app crashes, others are unaffected.</p>
+<h3>.NET CLR Version</h3>
+<ul>
+<li><strong>v4.0</strong> - for .NET Framework 4.x apps</li>
+<li><strong>v2.0</strong> - for .NET Framework 2.0/3.5 apps (legacy)</li>
+<li><strong>No Managed Code</strong> - for PHP, static files, Node.js via iisnode</li>
+</ul>
+<h3>Identity (Security Account)</h3>
+<div class="code-block">ApplicationPoolIdentity  &lt;-- Default, most secure (virtual account)
+LocalService             &lt;-- Low-privilege Windows service account
+NetworkService           &lt;-- Can access network resources
+LocalSystem              &lt;-- Full admin - NEVER use in production!
+Custom Account           &lt;-- Specific domain or local account</div>
+<h3>Recycling</h3>
+<p>IIS automatically restarts worker processes to keep apps healthy. Configure in IIS Manager &rarr; App Pools &rarr; Advanced Settings &rarr; Recycling.</p>
+<div class="code-block"><span class="cm"># PowerShell: Create an app pool</span>
+<span class="kw">New-WebAppPool</span> -Name <span class="vl">"MyAppPool"</span>
+
+<span class="cm"># Restart an app pool</span>
+<span class="kw">Restart-WebAppPool</span> -Name <span class="vl">"MyAppPool"</span></div>
+<div class="info-box ok"><strong>Best Practice:</strong> Give each application its own dedicated app pool for isolation.</div>
+</div>
+
+<div id="lc6">
+<h2>What is a Virtual Directory?</h2>
+<p>A <strong>Virtual Directory</strong> maps a URL path to a physical folder on disk (or a UNC network path), letting you serve content from different locations under one website.</p>
+<div class="code-block"><span class="cm"># Example mappings:</span>
+URL: http://mysite.com/images  ---&gt;  D:\SharedAssets\images\
+URL: http://mysite.com/docs    ---&gt;  \\fileserver\documents\</div>
+<h2>Virtual Directory vs Application</h2>
+<ul>
+<li><strong>Virtual Directory</strong> - just a path mapping, shares the parent app pool</li>
+<li><strong>Application</strong> - a virtual directory with its own app context, app pool, and web.config</li>
+</ul>
+<h3>Creating a Virtual Directory</h3>
+<p>In IIS Manager: expand your site &rarr; <strong>right-click &rarr; Add Virtual Directory</strong>. Enter an alias (URL segment) and the physical path.</p>
+<div class="code-block"><span class="cm"># PowerShell</span>
+<span class="kw">New-WebVirtualDirectory</span> -Site <span class="vl">"Default Web Site"</span> -Name <span class="vl">"images"</span> -PhysicalPath <span class="vl">"D:\assets\images"</span>
+
+<span class="kw">Get-WebVirtualDirectory</span> -Site <span class="vl">"Default Web Site"</span></div>
+<div class="info-box warn"><strong>UNC Paths:</strong> If using a network path like \\server\share, provide credentials via "Connect As" - the app pool identity cannot authenticate to network shares by default.</div>
+</div>
+
+<div id="lc7">
+<h2>Why HTTPS?</h2>
+<p>HTTPS encrypts traffic between browser and server, prevents eavesdropping, and is required for many modern browser features. You enable it in IIS with an SSL/TLS certificate.</p>
+<h2>Certificate Options</h2>
+<ul>
+<li><strong>Self-signed</strong> - free, for local dev only (browsers will warn)</li>
+<li><strong>Let's Encrypt</strong> - free, trusted, 90-day auto-renewal (use win-acme for IIS)</li>
+<li><strong>Commercial CA</strong> - DigiCert, Comodo, etc. (for production)</li>
+</ul>
+<h3>Step 1: Create a Self-Signed Certificate</h3>
+<div class="code-block"><span class="cm"># PowerShell (run as Admin)</span>
+<span class="kw">New-SelfSignedCertificate</span> -DnsName <span class="vl">"localhost"</span>, <span class="vl">"mysite.local"</span> -CertStoreLocation <span class="vl">"cert:\LocalMachine\My"</span> -NotAfter (Get-Date).AddYears(2)</div>
+<h3>Step 2: Bind Certificate to IIS</h3>
+<p>In IIS Manager: select your site &rarr; <strong>Bindings &rarr; Add</strong> &rarr; type <strong>https</strong>, port <strong>443</strong>, select your certificate from the dropdown.</p>
+<h3>Step 3: Force HTTPS Redirect (web.config)</h3>
+<div class="code-block">&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;rewrite&gt;
+      &lt;rules&gt;
+        &lt;rule name="HTTP to HTTPS" stopProcessing="true"&gt;
+          &lt;match url="(.*)"/&gt;
+          &lt;conditions&gt;
+            &lt;add input="{HTTPS}" pattern="^OFF$"/&gt;
+          &lt;/conditions&gt;
+          &lt;action type="Redirect" url="https://{HTTP_HOST}/{R:1}"/&gt;
+        &lt;/rule&gt;
+      &lt;/rules&gt;
+    &lt;/rewrite&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;</div>
+<div class="info-box"><strong>HSTS Tip:</strong> On newer IIS 10 environments you may be able to use built-in HSTS support. Otherwise, add the <code>Strict-Transport-Security</code> response header manually after you have confirmed HTTPS works correctly.</div>
+</div>
+
+<div id="lc8">
+<h2>IIS Authentication Types</h2>
+<p>Configure them in IIS Manager under <strong>Authentication</strong>.</p>
+<h3>Anonymous Authentication</h3>
+<p>Default for public websites. Anyone can access without credentials. Requests run as the <code>IUSR</code> account.</p>
+<h3>Windows Authentication</h3>
+<p>Uses Windows credentials (Active Directory or local accounts). Great for intranet apps. Uses NTLM or Kerberos - domain users authenticate automatically, no password prompt.</p>
+<div class="code-block"><span class="cm"># Enable Windows Auth via PowerShell</span>
+<span class="kw">Set-WebConfigurationProperty</span> -Filter "/system.webServer/security/authentication/windowsAuthentication" -Name enabled -Value True -PSPath "IIS:\Sites\MyApp"</div>
+<h3>Basic Authentication</h3>
+<p>Prompts for username and password. Credentials are Base64 encoded - <strong>always use with HTTPS!</strong> Without HTTPS, credentials are visible in plain text.</p>
+<h3>IP Address Restrictions</h3>
+<div class="code-block"><span class="cm">&lt;!-- web.config: Allow only specific IPs --&gt;</span>
+&lt;security&gt;
+  &lt;ipSecurity allowUnlisted="false"&gt;
+    &lt;add ipAddress="192.168.1.0" subnetMask="255.255.255.0" allowed="true"/&gt;
+    &lt;add ipAddress="127.0.0.1" allowed="true"/&gt;
+  &lt;/ipSecurity&gt;
+&lt;/security&gt;</div>
+<div class="info-box warn"><strong>Rule:</strong> Never use Basic Authentication over plain HTTP. Always pair it with HTTPS.</div>
+</div>
+
+<div id="lc9">
+<h2>What is URL Rewrite?</h2>
+<p>The <strong>URL Rewrite Module</strong> transforms incoming URLs before IIS processes them. Essential for SEO-friendly URLs, HTTP to HTTPS redirects, and reverse proxy setups.</p>
+<div class="info-box warn"><strong>Prerequisite:</strong> Install the IIS URL Rewrite Module from the official IIS/Microsoft download page if it is not already present on the server.</div>
+<h2>Rule Structure</h2>
+<div class="code-block">Match:      Pattern to test against the URL (regex or wildcards)
+Conditions: Optional extra checks (HTTPS status, host, query string)
+Action:     What to do - Rewrite, Redirect, Forbidden, etc.</div>
+<h3>1. Redirect www to non-www</h3>
+<div class="code-block">&lt;rule name="www to non-www" stopProcessing="true"&gt;
+  &lt;match url="(.*)"/&gt;
+  &lt;conditions&gt;
+    &lt;add input="{HTTP_HOST}" pattern="^www\.(.*)"/&gt;
+  &lt;/conditions&gt;
+  &lt;action type="Redirect" url="https://{C:1}/{R:1}" redirectType="Permanent"/&gt;
+&lt;/rule&gt;</div>
+<h3>2. SPA Routing (React / Angular)</h3>
+<div class="code-block">&lt;rule name="SPA Routes"&gt;
+  &lt;match url=".*"/&gt;
+  &lt;conditions logicalGrouping="MatchAll"&gt;
+    &lt;add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true"/&gt;
+    &lt;add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true"/&gt;
+  &lt;/conditions&gt;
+  &lt;action type="Rewrite" url="/index.html"/&gt;
+&lt;/rule&gt;</div>
+<h3>3. Reverse Proxy to Node.js</h3>
+<div class="code-block">&lt;rule name="Node.js Proxy"&gt;
+  &lt;match url="(.*)"/&gt;
+  &lt;action type="Rewrite" url="http://localhost:3000/{R:1}"/&gt;
+&lt;/rule&gt;</div>
+<div class="info-box"><strong>Remember:</strong> Rewrite = URL changes internally, browser URL stays the same. Redirect = browser URL changes (301/302 response).</div>
+</div>
+
+<div id="lc10">
+<h2>IIS Log Files</h2>
+<p>IIS logs every request to text files at: <code>C:\inetpub\logs\LogFiles\W3SVC1\</code> (number matches your site ID).</p>
+<h3>Log Entry Example</h3>
+<div class="code-block"><span class="cm">#Fields: date time s-ip cs-method cs-uri-stem s-port c-ip sc-status sc-substatus time-taken</span>
+2024-01-15 14:23:01 192.168.1.1 GET /index.html 80 10.0.0.5 <span class="vl">200</span> 0 15
+2024-01-15 14:23:05 192.168.1.1 GET /missing.html 80 10.0.0.5 <span class="vl">404</span> 0 8</div>
+<h3>Key Log Fields</h3>
+<ul>
+<li><code>sc-status</code> - HTTP status (200=OK, 404=Not Found, 500=Server Error)</li>
+<li><code>sc-substatus</code> - IIS sub-status for more specific error info</li>
+<li><code>time-taken</code> - request duration in milliseconds</li>
+<li><code>cs-uri-stem</code> - the URL path requested</li>
+<li><code>c-ip</code> - client IP address</li>
+</ul>
+<h3>Failed Request Tracing (FREB)</h3>
+<p>Detailed diagnostics for failed requests. Enable in IIS Manager: site &rarr; <strong>Failed Request Tracing Rules</strong>. Logs go to <code>C:\inetpub\logs\FailedReqLogFiles\</code>.</p>
+<h3>Real-time Monitoring</h3>
+<div class="code-block"><span class="cm"># Watch IIS logs live in PowerShell</span>
+<span class="kw">Get-Content</span> "C:\inetpub\logs\LogFiles\W3SVC1\u_ex*.log" -Wait -Tail 20
+
+<span class="cm"># Check active worker processes</span>
+<span class="kw">Get-Process</span> w3wp | Select Id, CPU, WorkingSet</div>
+<div class="info-box ok"><strong>IIS Manager tip:</strong> Check <strong>Worker Processes</strong> under the server node for real-time CPU/memory usage per app pool.</div>
+</div>
+
+<div id="lc11">
+<h2>Performance Optimization</h2>
+<h3>1. Enable Compression</h3>
+<div class="code-block"><span class="cm"># Enable GZip compression via PowerShell</span>
+<span class="kw">Set-WebConfigurationProperty</span> -Filter "system.webServer/httpCompression" -Name doDynamicCompression -Value True
+<span class="kw">Set-WebConfigurationProperty</span> -Filter "system.webServer/httpCompression" -Name doStaticCompression -Value True</div>
+<h3>2. Static File Caching (web.config)</h3>
+<div class="code-block">&lt;staticContent&gt;
+  &lt;clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="7.00:00:00"/&gt;
+&lt;/staticContent&gt;</div>
+<h3>3. Recycle Scheduling</h3>
+<p>Avoid recycling during peak hours. Set a specific recycling time (e.g. 2 AM) in App Pool &rarr; Advanced Settings &rarr; Recycling.</p>
+<h2>Common Troubleshooting</h2>
+<h3>HTTP 403.14 - Directory Browsing Denied</h3>
+<p>No default document found. Add <code>index.html</code> or <code>default.aspx</code> as a Default Document in IIS Manager.</p>
+<h3>HTTP 500.19 - Config Error</h3>
+<p>Usually a malformed <code>web.config</code>. Validate XML syntax and check for locked sections in applicationHost.config.</p>
+<h3>HTTP 503 - Service Unavailable</h3>
+<div class="code-block"><span class="cm"># App pool is stopped. Restart it:</span>
+<span class="kw">Start-WebAppPool</span> -Name <span class="vl">"DefaultAppPool"</span>
+<span class="cm"># Check Event Viewer &gt; Application log for crash details</span></div>
+<h3>Permission Errors</h3>
+<div class="code-block"><span class="cm"># Grant app pool identity access to a folder</span>
+icacls "C:\inetpub\myapp" /grant "IIS AppPool\DefaultAppPool:(OI)(CI)RX"</div>
+<div class="info-box ok"><strong>Course Complete!</strong> You now know IIS fundamentals, configuration, hosting, security, and advanced features. Use the AI Tutor to go deeper on any topic!</div>
+</div>
+
+</div>
+<!-- END LESSON HTML CONTENT -->
+
+<div id="appShell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <img src="heroblack.png" alt="IIS Academy logo" class="brand-photo">
+        <div class="brand-copy">
+          <h1>IIS Academy</h1>
+          <p>Modern, focused lessons for learning Internet Information Services on Windows.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="mini-stat"><b id="statMiniDone">0</b><span>Lessons done</span></div>
+      <div class="mini-stat"><b id="statMiniQuiz">0</b><span>Quizzes passed</span></div>
+    </div>
+
+    <div class="sidebar-progress">
+      <div class="progress-head">
+        <div class="title">Course Progress</div>
+        <div class="value" id="progressLabel">0 / 12</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="globalProgress"></div></div>
+    </div>
+
+    <div class="section-label">Start Here</div>
+    <div class="nav-list">
+      <button class="nav-item active" onclick="showDashboard(this)">
+        <div class="dot"></div>
+        <div class="nav-copy"><strong>Home Dashboard</strong><span>Overview, progress, and modules</span></div>
+      </button>
+      <button class="nav-item" onclick="showTutor(this)">
+        <div class="dot"></div>
+        <div class="nav-copy"><strong>AI Tutor</strong><span>Ask IIS questions and get guided help</span></div>
+      </button>
+    </div>
+
+    <div class="section-label" style="margin-top:14px">Module 1 — Fundamentals</div>
+    <div class="nav-list">
+      <button class="nav-item" data-lesson="0" onclick="loadLesson(0,this)"><div class="dot"></div><div class="nav-copy"><strong>What is IIS?</strong><span>Purpose, role, and core capabilities</span></div></button>
+      <button class="nav-item" data-lesson="1" onclick="loadLesson(1,this)"><div class="dot"></div><div class="nav-copy"><strong>IIS Architecture</strong><span>Pipeline, HTTP.sys, and worker processes</span></div></button>
+      <button class="nav-item" data-lesson="2" onclick="loadLesson(2,this)"><div class="dot"></div><div class="nav-copy"><strong>Installing IIS</strong><span>Features, verification, and paths</span></div></button>
+    </div>
+
+    <div class="section-label" style="margin-top:14px">Module 2 — Configuration</div>
+    <div class="nav-list">
+      <button class="nav-item" data-lesson="3" onclick="loadLesson(3,this)"><div class="dot"></div><div class="nav-copy"><strong>IIS Manager Overview</strong><span>Where everything lives in the UI</span></div></button>
+      <button class="nav-item" data-lesson="4" onclick="loadLesson(4,this)"><div class="dot"></div><div class="nav-copy"><strong>Websites &amp; Bindings</strong><span>Sites, ports, hosts, and routing</span></div></button>
+      <button class="nav-item" data-lesson="5" onclick="loadLesson(5,this)"><div class="dot"></div><div class="nav-copy"><strong>Application Pools</strong><span>Isolation, identity, and recycling</span></div></button>
+    </div>
+
+    <div class="section-label" style="margin-top:14px">Module 3 — Hosting &amp; Security</div>
+    <div class="nav-list">
+      <button class="nav-item" data-lesson="6" onclick="loadLesson(6,this)"><div class="dot"></div><div class="nav-copy"><strong>Virtual Directories</strong><span>Map URLs to physical paths</span></div></button>
+      <button class="nav-item" data-lesson="7" onclick="loadLesson(7,this)"><div class="dot"></div><div class="nav-copy"><strong>SSL &amp; HTTPS Setup</strong><span>Certificates and secure bindings</span></div></button>
+      <button class="nav-item" data-lesson="8" onclick="loadLesson(8,this)"><div class="dot"></div><div class="nav-copy"><strong>Authentication</strong><span>Anonymous, Windows, and restrictions</span></div></button>
+    </div>
+
+    <div class="section-label" style="margin-top:14px">Module 4 — Advanced</div>
+    <div class="nav-list">
+      <button class="nav-item" data-lesson="9" onclick="loadLesson(9,this)"><div class="dot"></div><div class="nav-copy"><strong>URL Rewrite Module</strong><span>Rules, redirects, and reverse proxying</span></div></button>
+      <button class="nav-item" data-lesson="10" onclick="loadLesson(10,this)"><div class="dot"></div><div class="nav-copy"><strong>Logging &amp; Monitoring</strong><span>Logs, traces, and worker insights</span></div></button>
+      <button class="nav-item" data-lesson="11" onclick="loadLesson(11,this)"><div class="dot"></div><div class="nav-copy"><strong>Performance &amp; Troubleshooting</strong><span>Tuning and common IIS errors</span></div></button>
+    </div>
+  </aside>
+
+  <section class="content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+        </button>
+        <div>
+          <div class="page-kicker" id="pageKicker">Dashboard</div>
+          <div class="page-title" id="pageTitle">IIS Academy</div>
+          <div class="page-subtitle" id="pageSubtitle">Lessons, quizzes, progress tracking, and tutor support in one place.</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="pill">Completed <b id="statTopDone">0</b></div>
+        <div class="pill">Quizzes <b id="statTopQuiz">0</b></div>
+      </div>
+    </header>
+
+    <main class="workspace" id="main-area">
+      <div class="view active" id="view-dashboard">
+        <section class="hero">
+          <div class="card hero-card">
+            <span class="hero-badge">Guided learning path</span>
+            <h2>IIS Academy</h2>
+            <p>Work through lessons, track your progress, and open the tutor whenever you need help.</p>
+            <div class="cta-row">
+              <button class="btn btn-primary" onclick="loadLesson(0,null)">Start Lesson 1</button>
+              <button class="btn btn-secondary" onclick="showTutor(document.querySelectorAll('.nav-item')[1])">Open AI Tutor</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <div class="card stat-card"><div class="stat-label">Lessons completed</div><div class="stat-value" id="stat-done">0</div><div class="stat-foot">Track your course completion</div></div>
+          <div class="card stat-card"><div class="stat-label">Quizzes passed</div><div class="stat-value" id="stat-quiz">0</div><div class="stat-foot">Knowledge checks completed</div></div>
+          <div class="card stat-card"><div class="stat-label">Total lessons</div><div class="stat-value">12</div><div class="stat-foot">Across 4 guided modules</div></div>
+          <div class="card stat-card"><div class="stat-label">Current focus</div><div class="stat-value" id="stat-focus">Start</div><div class="stat-foot">Resume from where you left off</div></div>
+        </section>
+
+        <section>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+            <div>
+              <div class="page-kicker">Course modules</div>
+              <h2 style="font-size:1.2rem;letter-spacing:-.03em;margin-top:6px">Choose a module</h2>
+            </div>
+          </div>
+          <div class="module-grid">
+            <div class="card module-card" onclick="loadLesson(0,null)">
+              <div class="module-head"><div class="module-icon">🌐</div><span class="badge beginner">Beginner</span></div>
+              <h3>Module 1 — Fundamentals</h3>
+              <p>Understand what IIS is, how it processes requests, and how to verify your environment.</p>
+              <div class="module-progress"><span id="mod1-prog"></span></div>
+            </div>
+            <div class="card module-card" onclick="loadLesson(3,null)">
+              <div class="module-head"><div class="module-icon">⚙️</div><span class="badge intermediate">Intermediate</span></div>
+              <h3>Module 2 — Configuration</h3>
+              <p>Learn the IIS Manager layout, site bindings, and the role of application pools.</p>
+              <div class="module-progress"><span id="mod2-prog"></span></div>
+            </div>
+            <div class="card module-card" onclick="loadLesson(6,null)">
+              <div class="module-head"><div class="module-icon">🔐</div><span class="badge intermediate">Intermediate</span></div>
+              <h3>Module 3 — Hosting &amp; Security</h3>
+              <p>Work with virtual directories, HTTPS setup, authentication, and access control.</p>
+              <div class="module-progress"><span id="mod3-prog"></span></div>
+            </div>
+            <div class="card module-card" onclick="loadLesson(9,null)">
+              <div class="module-head"><div class="module-icon">🚀</div><span class="badge advanced">Advanced</span></div>
+              <h3>Module 4 — Advanced</h3>
+              <p>Dive into URL Rewrite, logging, monitoring, optimization, and troubleshooting.</p>
+              <div class="module-progress"><span id="mod4-prog"></span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="view" id="view-lesson">
+        <div class="lesson-shell">
+          <section class="card lesson-hero">
+            <div class="lesson-tag" id="lesson-tag">Module</div>
+            <h2 id="lesson-title">Loading…</h2>
+            <p id="lesson-subtitle"></p>
+          </section>
+          <section class="lesson-layout">
+            <article class="card lesson-content-card">
+              <div class="lesson-content" id="lesson-content"></div>
+            </article>
+            <aside class="lesson-side">
+              <div class="card side-card">
+                <h3>Lesson tools</h3>
+                <div class="lesson-actions">
+                  <button class="btn btn-secondary" id="btn-prev" onclick="prevLesson()">← Previous</button>
+                  <button class="btn btn-primary" id="btn-quiz" onclick="showQuiz()">Take Quiz →</button>
+                  <button class="btn btn-success" id="btn-next" onclick="nextLesson()" style="display:none">Next Lesson ✓</button>
+                </div>
+              </div>
+              <div class="card side-card">
+                <h3>Lesson status</h3>
+                <div class="side-list">
+                  <div class="row"><span>Completed</span><span id="sideCompleted">No</span></div>
+                  <div class="row"><span>Quiz passed</span><span id="sideQuiz">No</span></div>
+                  <div class="row"><span>Module</span><span id="sideModule">—</span></div>
+                </div>
+              </div>
+              <div class="card side-card">
+                <h3>Helpful reminder</h3>
+                <p>Open IIS Manager while reading. Following each lesson with a real IIS instance nearby makes the concepts much easier to retain.</p>
+              </div>
+            </aside>
+          </section>
+        </div>
+      </div>
+
+      <div class="view" id="view-quiz">
+        <div class="quiz-shell">
+          <section class="card quiz-hero">
+            <div class="quiz-tag">Knowledge Check</div>
+            <h2 id="quiz-title">Quiz</h2>
+            <p>Answer the question below to complete this lesson and unlock the next step.</p>
+          </section>
+          <section class="card quiz-card">
+            <div id="quiz-body"></div>
+          </section>
+          <div class="card lesson-nav">
+            <button class="btn btn-secondary" onclick="backToLesson()">← Back to Lesson</button>
+            <button class="btn btn-success" id="btn-complete" onclick="completeLesson()" disabled>Complete &amp; Continue ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-tutor">
+        <div class="tutor-shell">
+          <section class="card tutor-hero">
+            <div class="quiz-tag">AI Tutor</div>
+            <h2>Ask anything about IIS</h2>
+            <p>Use this space to clarify concepts, get configuration steps, compare approaches, or troubleshoot IIS issues as you move through the lessons.</p>
+          </section>
+          <section class="tutor-layout">
+            <div class="card chat-card">
+              <div class="tutor-messages" id="tutor-messages">
+                <div class="msg ai">
+                  <div class="msg-avatar ai">Guide</div>
+                  <div class="msg-bubble">Hey! I’m your IIS tutor. I can explain concepts, walk through configuration steps, and help troubleshoot common IIS issues. Start with anything you’re curious about.</div>
+                </div>
+              </div>
+              <div class="chat-input-wrap">
+                <div class="quick-questions">
+                  <button class="quick-q" onclick="sendQuick(this)">How do I create a new website?</button>
+                  <button class="quick-q" onclick="sendQuick(this)">What is an Application Pool?</button>
+                  <button class="quick-q" onclick="sendQuick(this)">How do I enable HTTPS?</button>
+                  <button class="quick-q" onclick="sendQuick(this)">IIS vs Apache?</button>
+                  <button class="quick-q" onclick="sendQuick(this)">How can I view IIS logs?</button>
+                </div>
+                <div class="chat-input-row">
+                  <textarea class="tutor-input" id="tutor-input" rows="2" placeholder="Ask anything about IIS..."></textarea>
+                  <button class="send-btn" onclick="sendMessage()" aria-label="Send message">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <aside class="card helper-card">
+              <h3>Tutor tips</h3>
+              <ul>
+                <li>Ask for step-by-step PowerShell commands.</li>
+                <li>Paste an IIS error and request a diagnosis.</li>
+                <li>Request a quick summary before taking a quiz.</li>
+                <li>Use the tutor after each lesson to reinforce what you learned.</li>
+              </ul>
+              <p style="margin-top:12px">This tutor runs in local guide mode, so the page has no external API dependency. It still loads Google Fonts unless you self-host them or switch to system fonts.</p>
+            </aside>
+          </section>
+        </div>
+      </div>
+    </main>
+  </section>
+</div>
+
+<script>
+var currentLesson = -1;
+var completedLessons = {};
+var quizPassed = {};
+var tutorHistory = [];
+
+try {
+  var s1 = localStorage.getItem('iis_done');
+  if (s1) { var a1 = JSON.parse(s1); for (var i=0;i<a1.length;i++) completedLessons[a1[i]] = true; }
+  var s2 = localStorage.getItem('iis_quiz');
+  if (s2) { var a2 = JSON.parse(s2); for (var j=0;j<a2.length;j++) quizPassed[a2[j]] = true; }
+} catch(e){}
+
+var LESSONS = [
+  {tag:'MODULE 1 — LESSON 1', title:'What is IIS?', subtitle:'Understanding the purpose and role of Internet Information Services'},
+  {tag:'MODULE 1 — LESSON 2', title:'IIS Architecture', subtitle:'How IIS processes requests under the hood'},
+  {tag:'MODULE 1 — LESSON 3', title:'Installing IIS', subtitle:'Different ways to enable IIS features on Windows'},
+  {tag:'MODULE 2 — LESSON 4', title:'IIS Manager Overview', subtitle:'Navigating the IIS Management Console'},
+  {tag:'MODULE 2 — LESSON 5', title:'Websites & Bindings', subtitle:'Creating sites and configuring how IIS listens for requests'},
+  {tag:'MODULE 2 — LESSON 6', title:'Application Pools', subtitle:'Isolating and managing worker processes for stability'},
+  {tag:'MODULE 3 — LESSON 7', title:'Virtual Directories', subtitle:'Mapping URL paths to different physical locations'},
+  {tag:'MODULE 3 — LESSON 8', title:'SSL & HTTPS Setup', subtitle:'Securing your IIS site with TLS certificates'},
+  {tag:'MODULE 3 — LESSON 9', title:'Authentication Methods', subtitle:'Controlling who can access your IIS sites'},
+  {tag:'MODULE 4 — LESSON 10', title:'URL Rewrite Module', subtitle:'Transforming URLs with rules and conditions'},
+  {tag:'MODULE 4 — LESSON 11', title:'Logging & Monitoring', subtitle:'Understanding IIS logs to diagnose issues'},
+  {tag:'MODULE 4 — LESSON 12', title:'Performance & Troubleshooting', subtitle:'Optimizing IIS and solving common problems'}
+];
+
+var QUIZZES = [
+  {q:'What is the name of the Windows service that powers IIS?',opts:['IISSVC','W3SVC','WinHTTP','HTTPD'],c:1,exp:'W3SVC (World Wide Web Publishing Service) is the core Windows service that runs IIS. Manage it with: Get-Service -Name W3SVC'},
+  {q:'What is the role of HTTP.sys in IIS?',opts:['It is the IIS configuration UI','A kernel-mode driver handling HTTP requests, SSL, and caching','It manages application pool worker processes','It stores the IIS configuration files'],c:1,exp:'HTTP.sys is a Windows kernel-mode driver acting as the first layer of IIS request processing. It handles TCP/IP, SSL termination, and response caching at kernel level for maximum performance.'},
+  {q:'What is the default web root directory for IIS?',opts:['C:\\inetpub\\wwwroot\\','C:\\Program Files\\IIS\\www\\','C:\\Windows\\IIS\\htdocs\\','C:\\www\\html\\'],c:0,exp:'The default web root for IIS is C:\\inetpub\\wwwroot\\. This is where IIS serves files from by default. You can change this per-site in IIS Manager.'},
+  {q:'What is the name of IIS master configuration file?',opts:['iis.config','web.config','applicationHost.config','server.xml'],c:2,exp:'applicationHost.config is the master IIS config file at C:\\Windows\\System32\\inetsrv\\config\\. It stores all site, app pool, and global settings. Individual apps also have their own web.config.'},
+  {q:'What combination makes up an IIS binding?',opts:['Site name + Application Pool + Physical Path','Protocol + IP Address + Port + Host Name','Username + Password + Port','Domain + SSL Certificate + Port'],c:1,exp:'An IIS binding is: Protocol (http/https) + IP Address (or *) + Port number + optional Host Name. This tells IIS which incoming requests to route to a specific site.'},
+  {q:'Which Application Pool identity is the most secure default for production?',opts:['LocalSystem','NetworkService','ApplicationPoolIdentity','LocalService'],c:2,exp:'ApplicationPoolIdentity is the default and most secure. It creates a virtual account per app pool with minimal permissions - no password management needed and fully isolated.'},
+  {q:'Difference between a Virtual Directory and an Application in IIS?',opts:['They are the same thing','Virtual Directory maps URL to folder; Application has its own app context and app pool','Application is only for .NET; Virtual Directories are for static files','Virtual Directories only use local paths; Applications can use UNC paths'],c:1,exp:'A Virtual Directory maps a URL alias to a physical path. An Application is a virtual directory that also has its own application context - separate app pool, web.config, and runtime isolation.'},
+  {q:'Which tool automatically obtains free Let\'s Encrypt SSL certificates for IIS?',opts:['certmgr.msc','win-acme (wacs.exe)','IIS Manager built-in','OpenSSL for Windows'],c:1,exp:'win-acme (formerly letsencrypt-win-simple) automates Let\'s Encrypt certificate issuance and renewal on IIS. It integrates directly with IIS and handles auto-renewal via Windows Task Scheduler.'},
+  {q:'Best IIS auth method for intranet apps where users are domain members?',opts:['Anonymous Authentication','Basic Authentication','Windows Authentication','Digest Authentication'],c:2,exp:'Windows Authentication (NTLM or Kerberos) is ideal for intranet apps. Domain-logged-in users authenticate automatically - seamless single sign-on, no password prompt needed.'},
+  {q:'What URL Rewrite action changes the URL internally (invisible to client)?',opts:['Redirect','Rewrite','Forbidden','CustomResponse'],c:1,exp:'Rewrite changes the URL internally - the browser still shows the original URL. Redirect sends a 301/302 causing the browser to navigate to a new URL (the address bar changes).'},
+  {q:'What does the sc-substatus field represent in an IIS log?',opts:['The server subnet mask','A more specific IIS error code beyond the HTTP status','The SSL certificate status','The script engine status code'],c:1,exp:'sc-substatus provides more detail beyond the HTTP status. For example, 404.0 = file not found, 404.3 = MIME type restriction. Same HTTP code, different root causes.'},
+  {q:'What does HTTP error 503 typically indicate in IIS?',opts:['File not found','User not authorized','Application Pool is stopped or crashed','Config file syntax error'],c:2,exp:'HTTP 503 (Service Unavailable) almost always means the Application Pool is stopped or crashed. Check IIS Manager > Application Pools, and Windows Event Viewer for crash details.'}
+];
+
+function cardKey(event, idx){
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    openLesson(idx);
+  }
+}
+
+function saveProgress(){
+  try {
+    localStorage.setItem('iis_done', JSON.stringify(Object.keys(completedLessons).map(Number)));
+    localStorage.setItem('iis_quiz', JSON.stringify(Object.keys(quizPassed).map(Number)));
+  } catch(e){}
+  updateUI();
+}
+
+function getDoneCount(){ return Object.keys(completedLessons).length; }
+function getQuizCount(){ return Object.keys(quizPassed).length; }
+
+function updateTopbar(kicker,title,subtitle){
+  document.getElementById('pageKicker').textContent = kicker;
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSubtitle').textContent = subtitle;
+}
+
+function updateUI(){
+  var done = getDoneCount();
+  var qcount = getQuizCount();
+  var pct = (done / 12) * 100;
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = done + ' / 12';
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-quiz').textContent = qcount;
+  document.getElementById('statTopDone').textContent = done;
+  document.getElementById('statTopQuiz').textContent = qcount;
+  document.getElementById('statMiniDone').textContent = done;
+  document.getElementById('statMiniQuiz').textContent = qcount;
+
+  var focus = 'Start';
+  for (var i = 0; i < LESSONS.length; i++) {
+    if (!completedLessons[i]) { focus = LESSONS[i].title; break; }
+    if (i === LESSONS.length - 1) focus = 'Completed';
+  }
+  document.getElementById('stat-focus').textContent = focus;
+
+  var mods = [[0,1,2],[3,4,5],[6,7,8],[9,10,11]];
+  for (var m = 0; m < 4; m++) {
+    var d = 0;
+    for (var k = 0; k < 3; k++) if (completedLessons[mods[m][k]]) d++;
+    var el = document.getElementById('mod' + (m + 1) + '-prog');
+    if (el) el.style.width = (d / 3 * 100) + '%';
+  }
+
+  var navs = document.querySelectorAll('[data-lesson]');
+  for (var n = 0; n < navs.length; n++) {
+    var id = parseInt(navs[n].getAttribute('data-lesson'), 10);
+    navs[n].classList.toggle('done', !!completedLessons[id]);
+  }
+
+  if (currentLesson >= 0) {
+    document.getElementById('sideCompleted').textContent = completedLessons[currentLesson] ? 'Yes' : 'No';
+    document.getElementById('sideQuiz').textContent = quizPassed[currentLesson] ? 'Yes' : 'No';
+    document.getElementById('sideModule').textContent = LESSONS[currentLesson].tag.split('—')[0].trim();
+  }
+}
+
+function closeSidebar(){ document.body.classList.remove('sidebar-open'); }
+function toggleSidebar(){ document.body.classList.toggle('sidebar-open'); }
+
+function setNav(el){
+  var all = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+  if (el) el.classList.add('active');
+}
+
+function showView(name){
+  var vs = document.querySelectorAll('.view');
+  for (var i = 0; i < vs.length; i++) vs[i].classList.remove('active');
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('main-area').scrollTop = 0;
+}
+
+function showDashboard(el){
+  setNav(el);
+  showView('dashboard');
+  updateTopbar('Dashboard','Learn IIS with a cleaner, more modern workspace','Track progress, move through lessons, and use the tutor panel when you get stuck.');
+  closeSidebar();
+}
+
+function showTutor(el){
+  setNav(el);
+  showView('tutor');
+  updateTopbar('AI Tutor','Ask IIS questions in one focused workspace','Use the tutor to reinforce lessons, explain concepts, or troubleshoot your setup.');
+  closeSidebar();
+}
+
+function loadLesson(idx, el){
+  currentLesson = idx;
+  var meta = LESSONS[idx];
+  document.getElementById('lesson-tag').textContent = meta.tag;
+  document.getElementById('lesson-title').textContent = meta.title;
+  document.getElementById('lesson-subtitle').textContent = meta.subtitle;
+  document.getElementById('lesson-content').innerHTML = (document.getElementById('lc' + idx) || { innerHTML: 'Content not found.' }).innerHTML;
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-quiz').style.display = 'inline-flex';
+  document.getElementById('btn-next').style.display = 'none';
+  if (el) { setNav(el); } else { setNav(document.querySelector('[data-lesson="' + idx + '"]')); }
+  showView('lesson');
+  updateTopbar(meta.tag, meta.title, meta.subtitle);
+  updateUI();
+  closeSidebar();
+}
+
+function prevLesson(){ if (currentLesson > 0) loadLesson(currentLesson - 1, null); }
+function nextLesson(){ if (currentLesson < 11) loadLesson(currentLesson + 1, null); }
+
+function showQuiz(){
+  var q = QUIZZES[currentLesson];
+  document.getElementById('quiz-title').textContent = LESSONS[currentLesson].title + ' — Quiz';
+  var letters = ['A','B','C','D'];
+  var html = '<p class="quiz-q">' + q.q + '</p><div class="quiz-options">';
+  for (var i = 0; i < q.opts.length; i++) {
+    html += '<div class="quiz-opt" onclick="selectOpt(this,' + i + ')"><div class="quiz-letter">' + letters[i] + '</div><div>' + q.opts[i] + '</div></div>';
+  }
+  html += '</div><div class="quiz-feedback" id="quiz-fb"></div>';
+  document.getElementById('quiz-body').innerHTML = html;
+  document.getElementById('btn-complete').disabled = true;
+  setNav(null);
+  showView('quiz');
+  updateTopbar('Knowledge Check', LESSONS[currentLesson].title + ' quiz', 'Answer correctly to complete the lesson and move forward.');
+}
+
+function selectOpt(el, idx){
+  if (el.classList.contains('correct') || el.classList.contains('wrong')) return;
+  var opts = document.querySelectorAll('.quiz-opt');
+  for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected','correct','wrong');
+  el.classList.add('selected');
+  var q = QUIZZES[currentLesson];
+  var fb = document.getElementById('quiz-fb');
+  setTimeout(function(){
+    if (idx === q.c) {
+      el.classList.add('correct');
+      fb.className = 'quiz-feedback show info-box ok';
+      fb.innerHTML = '<strong>Correct.</strong> ' + q.exp;
+      document.getElementById('btn-complete').disabled = false;
+      quizPassed[currentLesson] = true;
+      saveProgress();
+    } else {
+      el.classList.add('wrong');
+      opts[q.c].classList.add('correct');
+      fb.className = 'quiz-feedback show info-box warn';
+      fb.innerHTML = '<strong>Not quite.</strong> ' + q.exp;
+      document.getElementById('btn-complete').disabled = false;
+    }
+  }, 180);
+}
+
+function backToLesson(){ loadLesson(currentLesson, null); }
+
+function completeLesson(){
+  completedLessons[currentLesson] = true;
+  saveProgress();
+  if (currentLesson < 11) loadLesson(currentLesson + 1, null);
+  else showDashboard(document.querySelector('.nav-item'));
+}
+
+document.getElementById('tutor-input').addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+function sendQuick(el){
+  document.getElementById('tutor-input').value = el.textContent;
+  sendMessage();
+}
+
+function escapeHtml(t){
+  return t
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function fmtReply(t){
+  t = escapeHtml(t);
+  t = t.replace(/```[\w]*\n?([\s\S]*?)```/g, '<pre>$1</pre>');
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\n\n/g, '<br><br>');
+  t = t.replace(/\n/g, '<br>');
+  return t;
+}
+
+function appendMsg(role, html){
+  var el = document.createElement('div');
+  el.className = 'msg ' + role;
+  el.innerHTML = '<div class="msg-avatar ' + role + '">' + (role === 'ai' ? 'Guide' : 'You') + '</div><div class="msg-bubble">' + html + '</div>';
+  var c = document.getElementById('tutor-messages');
+  c.appendChild(el);
+  el.scrollIntoView({behavior:'smooth', block:'end'});
+  return el;
+}
+
+function appendTyping(){
+  var el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = '<div class="msg-avatar ai">Guide</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  var c = document.getElementById('tutor-messages');
+  c.appendChild(el);
+  el.scrollIntoView({behavior:'smooth', block:'end'});
+  return el;
+}
+
+function getLocalTutorReply(text){
+  var q = text.toLowerCase();
+
+  if (q.includes('binding') || q.includes('bindings') || q.includes('host header') || q.includes('hostname')) {
+    return '**IIS bindings** connect a site to a protocol, IP, port, and optional host name. Open your site in IIS Manager, click **Bindings...**, then add or edit entries for HTTP or HTTPS.\n\nFor example, use `http` on port `80` with a host name like `academy.local`, or `https` on port `443` with a certificate selected. If a site will not open, bindings are one of the first things to check.';
+  }
+
+  if (q.includes('app pool') || q.includes('application pool') || q.includes('worker process')) {
+    return '**Application pools** isolate apps so one site crash does not take down another. Check the pool runtime, pipeline mode, identity, and whether the pool is stopped.\n\nA good first check is to recycle the pool and review the app pool settings for the site. Also confirm the app folder permissions match the pool identity.';
+  }
+
+  if (q.includes('ssl') || q.includes('https') || q.includes('certificate') || q.includes('tls')) {
+    return '**HTTPS in IIS** needs two things:** a valid certificate and an HTTPS binding.** Import or create the certificate, then add an `https` binding on port `443` and choose the certificate.\n\nIf the browser still warns, verify the certificate matches the hostname and that the full certificate chain is trusted on the machine.';
+  }
+
+  if (q.includes('rewrite') || q.includes('redirect') || q.includes('url rewrite') || q.includes('web.config')) {
+    return '**URL Rewrite and redirects** are usually managed in `web.config`. A redirect sends the browser elsewhere, while a rewrite changes the path internally before IIS serves it.\n\nExample redirect:```xml\n<rule name="Force HTTPS" stopProcessing="true">\n  <match url="(.*)" />\n  <conditions>\n    <add input="{HTTPS}" pattern="off" />\n  </conditions>\n  <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" />\n</rule>\n```';
+  }
+
+  if (q.includes('log') || q.includes('logging') || q.includes('failed request') || q.includes('freb') || q.includes('500') || q.includes('403') || q.includes('404')) {
+    return '**Troubleshooting IIS** is fastest when you check logs in this order: site status, app pool status, IIS logs, then Failed Request Tracing if needed.\n\nFor common errors: `404` usually means missing content or wrong path, `403` often means permissions/default document issues, and `500` usually points to app configuration or runtime errors.';
+  }
+
+  if (q.includes('install') || q.includes('enable iis') || q.includes('windows feature')) {
+    return '**To install IIS on Windows**, enable the Web Server role and then confirm the default site loads in a browser. You can do that from Windows Features or PowerShell.\n\nExample:```powershell\nEnable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole -All\n```';
+  }
+
+  return ' This study guide **runs locally** and does not call any external API. The tutor panel can still help with common IIS topics such as **bindings, application pools, HTTPS, logs, web.config, URL Rewrite, and deployment checklists.**\n\nTry a question like `What does an application pool do?` or `How do I bind HTTPS in IIS?`';
+}
+
+function sendMessage(){
+  var input = document.getElementById('tutor-input');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  appendMsg('user', escapeHtml(text));
+  tutorHistory.push({role:'user', content:text});
+  var typing = appendTyping();
+
+  setTimeout(function(){
+    var reply = getLocalTutorReply(text);
+    tutorHistory.push({role:'assistant', content:reply});
+    if (typing.parentNode) typing.parentNode.removeChild(typing);
+    appendMsg('ai', fmtReply(reply));
+  }, 450);
+}
+
+updateUI();
+showDashboard(document.querySelector('.nav-item'));
+</script>
+</body>
+</html>
